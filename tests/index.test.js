@@ -42,13 +42,26 @@ function timeObject(diffMs) {
 
 function findGame( gamesList ){
   var statusCompose = compose(gameStatus, getDiff);
-
-  for(var i = 0; i <= gamesList.length - 1; i++){
+  var lastIndex = gamesList.length - 1;
+  for(var i = 0; i <= lastIndex; i++){
     var status = statusCompose(gamesList[i].time);
     if ( !status.outdated && !status.gameOver || status.outdated && !status.gameOver  ) {
       return gamesList[i]
-    } else if ( i === gamesList.length - 1 ) {
-      return gamesList[gamesList.length - 1]
+    } else if ( i === lastIndex ) {
+      return lastIndex
+    }
+  }
+}
+
+function findGames( gamesList ){
+  var statusCompose = compose(gameStatus, getDiff);
+  var lastIndex = gamesList.length - 1; //?
+  for(var i = 0; i <= lastIndex; i++){
+    var status = statusCompose(gamesList[i].time);
+    if ( !status.outdated && !status.gameOver || status.outdated && !status.gameOver  ) {
+      return gamesList.slice(i)
+    } else if ( i === lastIndex /*? */) {
+      return gamesList.slice(lastIndex)
     }
   }
 }
@@ -57,76 +70,102 @@ var game = findGame( schedule );                        //?. $
 var resObj = compose(timeObject, getDiff)( game.time ); //?. $
 
 
-
-test('Russia v Saudi Arabia', () => {
-  TEST_CURRENT_TIME = '2018-06-14 20:00:00';
-  expect( findGame( schedule ) ).toEqual({ group:'Russia v Saudi Arabia',  time: '2018-06-14 15:00:00 UTC',  id: 100,  left: 'Russia',  right: 'Saudi Arabia' })
-})
-
-
-
-test('Serbia v Brazil 19:01', () => {
-  TEST_CURRENT_TIME = '2018-06-27 19:01:00';
-  expect( findGame( schedule ) ).toEqual({
-    group:'Serbia v Brazil',
-    time: '2018-06-27 18:00:00 UTC',
-    id: 116,
-    left: 'Serbia',
-    right: 'Brazil'
+describe('one game', function() {
+  test('Russia v Saudi Arabia', () => {
+    TEST_CURRENT_TIME = '2018-06-14 20:00:00';
+    expect( findGame( schedule ) ).toEqual({
+      group:'Russia v Saudi Arabia',
+      time: '2018-06-14 15:00:00 UTC',
+      id: 100,
+      left: 'Russia',
+      right: 'Saudi Arabia'
+    })
   })
-})
 
 
-test('Belgium v Tunisia 17:00', () => {
-  TEST_CURRENT_TIME = '2018-06-23 17:00:00';
-  expect( findGame( schedule ) ).toEqual({
-    group:'Belgium v Tunisia',
-    time: '2018-06-23 12:00:00 UTC',
-    id: 110,
-    left: 'Belgium',
-    right: 'Tunisia'
+  test('Serbia v Brazil 19:01', () => {
+    TEST_CURRENT_TIME = '2018-06-27 19:01:00';
+    expect( findGame( schedule ) ).toEqual({
+      group:'Serbia v Brazil',
+      time: '2018-06-27 18:00:00 UTC',
+      id: 116,
+      left: 'Serbia',
+      right: 'Brazil'
+    })
   })
-})
 
-test('Belgium v Tunisia ---> Germany v Sweden 17:01', () => {
-  TEST_CURRENT_TIME = '2018-06-23 17:01:00';
-  expect( findGame( schedule ) ).toEqual({
-    group:'Germany v Sweden',
-    time: '2018-06-23 18:00:00 UTC',
-    id: 111,
-    left: 'Germany',
-    right: 'Sweden'
+
+  test('Belgium v Tunisia 17:00', () => {
+    TEST_CURRENT_TIME = '2018-06-23 17:00:00';
+    expect( findGame( schedule ) ).toEqual({
+      group:'Belgium v Tunisia',
+      time: '2018-06-23 12:00:00 UTC',
+      id: 110,
+      left: 'Belgium',
+      right: 'Tunisia'
+    })
   })
-})
 
-test('Serbia v Brazil 23:00', () => {
-  TEST_CURRENT_TIME = '2018-06-27 23:00:00';
-  expect( findGame( schedule ) ).toEqual({
-    group:'Serbia v Brazil',
-    time: '2018-06-27 18:00:00 UTC',
-    id: 116,
-    left: 'Serbia',
-    right: 'Brazil'
+  test('Belgium v Tunisia ---> Germany v Sweden 17:01', () => {
+    TEST_CURRENT_TIME = '2018-06-23 17:01:00';
+    expect( findGame( schedule ) ).toEqual({
+      group:'Germany v Sweden',
+      time: '2018-06-23 18:00:00 UTC',
+      id: 111,
+      left: 'Germany',
+      right: 'Sweden'
+    })
   })
-})
 
-test('Japan v Poland 23:01', () => {
-  TEST_CURRENT_TIME = '2018-06-27 23:01:00';
-  expect( findGame( schedule ) ).toEqual({
-    group:'Japan v Poland',
-    time: '2018-06-28 14:00:00 UTC',
-    id: 117,
-    left: 'Japan',
-    right: 'Poland'
+  test('Serbia v Brazil 23:00', () => {
+    TEST_CURRENT_TIME = '2018-06-27 23:00:00';
+    expect( findGame( schedule ) ).toEqual({
+      group:'Serbia v Brazil',
+      time: '2018-06-27 18:00:00 UTC',
+      id: 116,
+      left: 'Serbia',
+      right: 'Brazil'
+    })
   })
-})
 
-test('last game 2018-06-28 19:01:00', () => {
-  TEST_CURRENT_TIME = '2018-06-28 19:01:00';
-  expect( findGame( schedule ) ).not.toBeUndefined();
-})
+  test('Japan v Poland 23:01', () => {
+    TEST_CURRENT_TIME = '2018-06-27 23:01:00';
+    expect( findGame( schedule ) ).toEqual({
+      group:'Japan v Poland',
+      time: '2018-06-28 14:00:00 UTC',
+      id: 117,
+      left: 'Japan',
+      right: 'Poland'
+    })
+  })
 
-test('current time', () => {
-  TEST_CURRENT_TIME = new Date();
-  expect( findGame( schedule ) ).toEqual({ group:'Russia v Saudi Arabia',  time: '2018-06-14 15:00:00 UTC',  id: 100,  left: 'Russia',  right: 'Saudi Arabia' })
+  test('last game 2018-06-28 19:01:00', () => {
+    TEST_CURRENT_TIME = '2018-06-28 19:01:00';
+    expect( findGame( schedule ) ).not.toBeUndefined();
+  })
+
+  test('current time', () => {
+    TEST_CURRENT_TIME = new Date();
+    expect( findGame( schedule ) ).toEqual({ group:'Russia v Saudi Arabia',  time: '2018-06-14 15:00:00 UTC',  id: 100,  left: 'Russia',  right: 'Saudi Arabia' })
+  })
+
+});
+
+
+describe('few game', function() {
+  test('current time - full list', () => {
+    TEST_CURRENT_TIME = new Date();
+    expect( findGames( schedule ).length ).toBe(18)
+  })
+
+
+  test('last game', () => {
+    TEST_CURRENT_TIME = '2018-06-28 19:01:00';
+    expect( findGames( schedule ).length ).toBe(1)
+  })
+
+  test('Germany v Sweden length 7', () => {
+    TEST_CURRENT_TIME = '2018-06-23 17:01:00';
+    expect( findGames( schedule ).length ).toBe(7)
+  })
 })

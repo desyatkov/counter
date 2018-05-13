@@ -22,7 +22,7 @@ function gameStatus(diffMs) {
 
 // return diff from current to deadline
 function getDiff(time){
-  var exp = new Date('2018-06-27 19:01:00');
+  var exp = new Date('2018-06-28 19:01:00');
   var now = new Date(exp.getFullYear(), exp.getMonth(), exp.getDate(), exp.getHours(), exp.getMinutes(), 0).valueOf();
   var target = new Date(time).valueOf();
   return  target - now;
@@ -55,5 +55,23 @@ function findGame( gamesList ){
   }
 }
 
-var game = findGame( schedule );                        //?. $
-var resObj = compose(timeObject, getDiff)( game.time ); //?. $
+
+function findGames( gamesList ){
+  var statusCompose = compose(gameStatus, getDiff);
+  var lastIndex = gamesList.length - 1; //?
+  for(var i = 0; i <= lastIndex; i++){
+    var status = statusCompose(gamesList[i].time);
+    if ( !status.outdated && !status.gameOver || status.outdated && !status.gameOver  ) {
+      return gamesList.slice(i)
+    } else if ( i === lastIndex /*? */) {
+      return gamesList.slice(lastIndex)
+    }
+  }
+}
+
+// var game = findGame( schedule );                        //?. $
+// var resObj = compose(timeObject, getDiff)( game.time ); //?. $
+
+var game = findGames( schedule );                        //? $
+
+// console.log(JSON.stringify(game, undefined, 4))
